@@ -1,3 +1,27 @@
+<template>
+  <div>
+    <h3>クリックバージョン</h3>
+    <input type="button" value="CLICK" @click="handleClick" />
+    <confirm-dialog-component
+      :is-visible="isDialogVisibleForSubmit"
+      @confirm="handleConfirmForSubmit"
+      @cancel="handleCancelForSubmit"
+    ></confirm-dialog-component>
+  </div>
+  <div>
+    <h3>フォームバージョン</h3>
+    <form id="myForm" @submit.prevent="handleSubmit">
+      <input type="text" name="name" v-model="value" />
+      <input type="submit" value="SUBMIT" />
+      <confirm-dialog-component
+        :is-visible="isDialogVisibleForClick"
+        @confirm="handleConfirmForClick"
+        @cancel="handleCancelForClick"
+      ></confirm-dialog-component>
+    </form>
+  </div>
+</template>
+
 <script>
 import ConfirmDialogComponent from "./components/ConfirmDialogComponent.vue";
 
@@ -8,28 +32,41 @@ export default {
   data() {
     return {
       value: "",
-      isDialogVisible: false,
+      isDialogVisibleForSubmit: false,
+      isDialogVisibleForClick: false,
       resolveDialog: null,
     };
   },
   methods: {
+    handleConfirmForClick() {
+      alert("CLICKED CONFIRM");
+      this.isDialogVisibleForClick = false;
+    },
+    handleCancelForClick() {
+      alert("CLICKED CANCEL");
+      this.isDialogVisibleForClick = false;
+    },
+    handleClick(e) {
+      e.preventDefault();
+      this.isDialogVisibleForClick = true;
+    },
     showDialog() {
-      this.isDialogVisible = true;
+      this.isDialogVisibleForSubmit = true;
       return new Promise((resolve, reject) => {
         this.resolveDialog = resolve;
       });
     },
-    handleConfirm() {
+    handleConfirmForSubmit() {
       if (this.resolveDialog) {
         this.resolveDialog(true);
       }
-      this.isDialogVisible = false;
+      this.isDialogVisibleForSubmit = false;
     },
-    handleCancel() {
+    handleCancelForSubmit() {
       if (this.resolveDialog) {
         this.resolveDialog(false);
       }
-      this.isDialogVisible = false;
+      this.isDialogVisibleForSubmit = false;
     },
     async handleSubmit(e) {
       // form validation
@@ -53,15 +90,3 @@ export default {
   },
 };
 </script>
-
-<template>
-  <form id="myForm" @submit.prevent="handleSubmit">
-    <input type="text" name="name" v-model="value" />
-    <input type="submit" value="SUBMIT" />
-    <confirm-dialog-component
-      :is-visible="isDialogVisible"
-      @confirm="handleConfirm"
-      @cancel="handleCancel"
-    ></confirm-dialog-component>
-  </form>
-</template>
